@@ -39,7 +39,7 @@ const Card_edit_form = ({ FileInput, card, updateCard, deleteCard }) => {
         })
     }
 
-    const onSubmit = (event) => {
+    const onSubmit = () => {
         deleteCard(card);
     }
 

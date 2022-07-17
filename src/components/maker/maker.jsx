@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import Header from '../header/header'
 import Footer from '../footer/footer'
 import React, { useEffect } from 'react';
@@ -19,12 +18,16 @@ const Maker = ({ FileInput, authService, cardRepository }) => {
         authService.logout();
     };
 
-    //동일 아이디의 DB출력(Mount 및 사용자 아이디 변경 시)
+    //DB출력(Mount 및 사용자 아이디 변경 시)
     useEffect(() => {
-        const stopSync = cardRepository.syncCards(loginStore.id, cards => {makerStore.stopSync(cards)})
-        return () => stopSync();
+        authService.onAuthChange(
+            //user정보가 남아있다면, logingStore의 id를 user.uid로 변경
+            user => {user && loginStore.setLoginStore(user.uid)
+            const stopSync = cardRepository.syncCards(loginStore.id, cards => {makerStore.stopSync(cards)})
+            return () => stopSync();
+          })
     }, [loginStore.id]);
-
+    
 
     //동일 아이디의 DB출력(로그인 시)
     useEffect(() => {
@@ -37,28 +40,13 @@ const Maker = ({ FileInput, authService, cardRepository }) => {
         });
     });
 
-    //카드생성 및 업데이트 
-    const createOrUpdateCard = card => {
-        makerStore.createOrUpdateCard(card);
-        cardRepository.saveCard(loginStore.id, card); 
-    }
-
-    //카드삭제
-    const deleteCard = card => {
-        makerStore.deleteCard(card);
-        cardRepository.removeCard(loginStore.id, card);
-    }
-
     return useObserver(() => (
-        <section className={styles.maker}>
+    <section className={styles.maker}>
             <Header onLogout={onLogout}/>
             <div className={styles.container}>
                 <Editor 
                     FileInput={FileInput}
-                    cards={makerStore.cards} 
-                    addCard={createOrUpdateCard} 
-                    updateCard={createOrUpdateCard} 
-                    deleteCard={deleteCard}/>
+                    cardRepository={cardRepository} />
                 <Preview cards={makerStore.cards}/>
             </div>
             <Footer />

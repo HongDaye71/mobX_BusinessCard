@@ -1,8 +1,13 @@
 import React, { useRef, useState } from 'react';
 import Button from '../button/button';
 import styles from './card_add_form.module.css'
+import { useObserver  } from 'mobx-react';
+import useStore from '../../store/store';
 
-const CardAddForm = ({ FileInput, onAdd }) => {
+const CardAddForm = ({ FileInput, cardRepository}) => {
+    const { makerStore } = useStore();
+    const { loginStore } = useStore();
+
     const formRef = useRef();
     const nameRef = useRef();
     const companyRef = useRef();
@@ -34,10 +39,11 @@ const CardAddForm = ({ FileInput, onAdd }) => {
         };
         formRef.current.reset(); //제출 시, value reset
         setFile({ fileName: null, fileURL: null })
-        onAdd(card);
+        makerStore.createOrUpdateCard(card);
+        cardRepository.saveCard(loginStore.id, card); 
     }
 
-    return (
+    return useObserver(() => (
         <form ref={formRef} className={styles.form}>
             <input ref={nameRef} className={styles.input} type="text" name="name" placeholder="Name" />
             <input ref={companyRef} className={styles.input} type="text" name="company" placeholder="Company" />
@@ -54,7 +60,8 @@ const CardAddForm = ({ FileInput, onAdd }) => {
             </div>
             <Button name='Add' onClick={onSubmit} />
         </form>
-    );
+    ))
+    ;
 };
 
 export default CardAddForm;

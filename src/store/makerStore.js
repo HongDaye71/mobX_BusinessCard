@@ -22,6 +22,7 @@ const makerStore = observable({
     
     stopSync (cards) {
         this.cards = cards
+        console.log(this.cards)
     },
 
     
